@@ -1,0 +1,23 @@
+name: Update dynamic status
+on:
+  schedule:
+    - cron: '0 9 * * 1'   # каждый понедельник в 9:00 UTC
+  workflow_dispatch:
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update status.json
+        run: |
+          STATUSES=("Собираю эпидданные" "Провожу РЭА" "Разрабатываю мероприятия" "Ликвидирую очаг")
+          RANDOM=$$(( RANDOM % ${#STATUSES[@]} ))
+          STATUS=${STATUSES[$RANDOM]}
+          echo "{\"schemaVersion\":1,\"label\":\"STATUS\",\"message\":\"$STATUS\",\"color\":\"green\"}" > status.json
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add status.json
+          git commit -m "Update status" || exit 0
+          git push
