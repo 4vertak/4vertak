@@ -29,9 +29,9 @@ petra_scandali rogue-go filegate tb-disinfection-demo
 ```
 ```sh
 root@epi-lab:~# cat projects/tb-disinfection-demo/status.log
-[DEPLOYED] Система автоматизации заявок на заключительную дезинфекцию очагов туберкулёза.
+[DEPLOYED] АИС «Дезинфекция» — автоматизация учёта заявок на заключительную дезинфекцию.
 [RESOLVED] Разработана BPMN-модель AS-IS/TO-BE и ER-диаграмма.
-[COST_SAVED] Минус 50% времени обработки, исключены ошибки ручного ввода.
+[COST_SAVED] Время доставки заявки до дезинфектора: с 24 часов до ≤ 5 секунд. Время формирования отчётности: с нескольких часов до ≤ 5 секунд. Потери заявок: исключены полностью (100% учёт)
 ```
 ```sh
 root@epi-lab:~# cat projects/filegate/status.log
