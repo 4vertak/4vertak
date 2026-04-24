@@ -3,50 +3,49 @@
 </p>
 
 ```text
-root@epid-analyzer:~# cat /etc/motd
+root@epi-lab:~# cat /etc/motd
 
-██╗ ██╗██╗ ██╗███████╗██████╗ ████████╗ █████╗ ██╗ ██╗
+██╗ ██╗██╗ ██╗███████╗██████╗ ████████╗ █████╗ ██╗  ██╗
 ██║ ██║██║ ██║██╔════╝██╔══██╗╚══██╔══╝██╔══██╗██║ ██╔╝
 ██████║██║ ██║█████╗  ██████╔╝   ██║   ███████║█████╔╝
 ╚═══██║██║ ██║██╔══╝  ██╔══██╗   ██║   ██╔══██║██╔═██╗
-    ██║╚████╔╝███████╗██║  ██║   ██║   ██║  ██║██║ ██╗
-    ╚═╝ ╚═══╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝ ╚═╝
+    ██║╚████╔╝███████╗██║  ██║   ██║   ██║  ██║██║  ██╗
+    ╚═╝ ╚═══╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝
 ```
 
-> Версия ядра: 42.2 \
-> Локация: `Yakutsk, REMOTE` \
-> Статус: `ACTIVE` \
-> Миссия: `Формализовать хаос`
+> Версия ядра: **42.2**<br>
+> Локация: `Якутск, удалённо`<br>
+> Статус стенда: `АКТИВЕН` | Текущая миссия: `Формализация эпидпроцессов`
 
 ```sh
-root@epi-lab:~# whoami
+root@epi-lab:~# whoami<br>
 Эпидемиолог с 23-летним стажем, развиваюсь в системном анализе и бэкенд-разработке на Go и Python.
-Собираю, обобщаю, анализирую эпидданные и перевожу их в BPMN, UML, SQL, микросервисы.
+Собираю, обобщаю, анализирую данные и перевожу их в BPMN, UML, SQL, микросервисы.
 ```
 ```sh
-root@epi-lab:~# ls projects/
+root@epi-lab:~# ls projects/<br>
 petra_scandali rogue-go filegate tb-disinfection-demo
 ```
 ```sh
-root@epi-lab:~# cat projects/tb-disinfection-demo/status.log
-[DEPLOYED] АИС «Дезинфекция» — автоматизация учёта заявок на заключительную дезинфекцию.
-[RESOLVED] Разработана BPMN-модель AS-IS/TO-BE и ER-диаграмма.
+root@epi-lab:~# cat projects/tb-disinfection-demo/status.log<br>
+[DEPLOYED] АИС «Дезинфекция» — автоматизация учёта заявок на заключительную дезинфекцию.<br>
+[RESOLVED] Разработана BPMN-модель AS-IS/TO-BE и ER-диаграмма.<br>
 [COST_SAVED] Время доставки заявки до дезинфектора: с 24 часов до ≤ 5 секунд. Время формирования отчётности: с нескольких часов до ≤ 5 секунд. Потери заявок: исключены полностью (100% учёт)
 ```
 ```sh
-root@epi-lab:~# cat projects/filegate/status.log
+root@epi-lab:~# cat projects/filegate/status.log<br>
 [INIT] Микросервис для загрузки и скачивания файлов на Go. Первый коммит: 28 января 2026.
 ```
 ```sh
-root@epi-lab:~# cat projects/rogue-go/status.log
+root@epi-lab:~# cat projects/rogue-go/status.log<br>
 [DEV] Учебный проект: roguelike-игра на Go. Генерация уровней, логика боя.
 ```
 ```sh
-root@epi-lab:~# cat projects/petra_scandali/status.log
+root@epi-lab:~# cat projects/petra_scandali/status.log<br>
 [COMPLETED] Учебные проекты на C и C++ за время обучения в Школе 21. 340 коммитов.
 ```
 ```sh
-root@epi-lab:~# grep "domain" skills.json
+root@epi-lab:~# grep "domain" skills.json<br>
 ["эпидемиология и инфекционный контроль", "ретроспективный и оперативный анализ (РЭА)", "системный анализ (BPMN, UML, ER, требования, API)", "разработка (Go, Python, SQL, C/C++)"]
 ```
 ---
