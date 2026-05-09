@@ -13,9 +13,9 @@ root@epid-lab:~# cat /etc/motd
     ╚═╝ ╚═══╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝
 ```
 
-> Версия ядра: **42.2** (23 года в эпидемиологии)<br>
+> Версия ядра: **42.2<!-- age_years (dynamic) -->** (23 года в эпидемиологии)<br>
 > Локация: `Якутск, удалённо`<br>
-> Статус стенда: `АКТИВЕН` | Текущая миссия: `Формализация процессов`
+> Статус стенда: `АКТИВЕН<!-- stand_status (dynamic) -->` | Текущая миссия: `ЛИКВИДАЦИЯ ЭПИДЕМИИ<!-- mission (dynamic) -->`
 
 ```sh
 root@epid-lab:~# whoami<br>
@@ -54,9 +54,9 @@ root@epid-lab:~# grep "domain" skills.json<br>
 ```
 ---
 
-![Mission](https://img.shields.io/badge/Миссия-ЛИКВИДАЦИЯ_ОЧАГА-critical?style=flat)
-![Rt](https://img.shields.io/badge/Коэффициент_распространения_(Rt)-<0.9-success?style=flat)
-![Статус](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/4vertak/4vertak/main/status.json)
+![Миссия](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/4vertak/4vertak/main/badges/mission.json)
+![Rt](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/4vertak/4vertak/main/badges/rt.json)
+![Статус](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/4vertak/4vertak/main/badges/status.json)
 
 
 
