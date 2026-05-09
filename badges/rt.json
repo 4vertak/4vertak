@@ -1,1 +1,1 @@
-{"schemaVersion":1,"label":"Rt (активность)","message":"0.1","color":"blue"}
+{"schemaVersion":1,"label":"Коэффициент распространения (Rt)","message":"0.1","color":"blue", "labelColor": "red"}
