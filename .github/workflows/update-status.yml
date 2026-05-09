@@ -14,20 +14,16 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
+
       - name: Update status.json
         run: |
-          # Массив статусов
-          STATUSES=("Собираю эпидданные" "Провожу РЭА" "Разрабатываю мероприятия" "Ликвидирую очаг")
-          
-          # Получаем случайный индекс (более надёжный способ, чем RANDOM)
-          INDEX=$(shuf -i 0-$((${#STATUSES[@]} - 1)) -n 1)
-          STATUS=${STATUSES[$INDEX]}
-          
-          # Можно выбрать случайный цвет для разнообразия
-          COLORS=("green" "blue" "yellow" "orange" "brightgreen")
-          COLOR_INDEX=$(shuf -i 0-$((${#COLORS[@]} - 1)) -n 1)
-          COLOR=${COLORS[$COLOR_INDEX]}
-          
+          # Список статусов, каждый с новой строки
+          STATUS=$(printf "Собираю эпидданные\nПровожу РЭА\nРазрабатываю мероприятия\nЛиквидирую очаг\n" | shuf -n 1)
+
+          # Список цветов
+          COLOR=$(printf "green\nblue\nyellow\norange\nbrightgreen\n" | shuf -n 1)
+
+          # Генерация JSON без jq (руками, безопасно для sh)
           echo "{\"schemaVersion\":1,\"label\":\"STATUS\",\"message\":\"$STATUS\",\"color\":\"$COLOR\"}" > status.json
 
       - name: Commit and push
