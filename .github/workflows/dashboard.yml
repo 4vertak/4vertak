@@ -145,8 +145,8 @@ jobs:
 
           # Генерация JSON в папке badges
           echo "{\"schemaVersion\":1,\"label\":\"Миссия\",\"message\":\"${{ steps.rt.outputs.MISSION }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"red\"}" > badges/mission.json
-          echo "{\"schemaVersion\":1,\"label\":\"Rt (активность)\",\"message\":\"${{ steps.rt.outputs.RT }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"red\"}" > badges/rt.json
-          echo "{\"schemaVersion\":1,\"label\":\"STATUS\",\"message\":\"${{ steps.rt.outputs.STATUS }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"red\"}" > badges/status.json
+          echo "{\"schemaVersion\":1,\"label\":\"Rt (активность)\",\"message\":\"${{ steps.rt.outputs.RT }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"green\"}" > badges/rt.json
+          echo "{\"schemaVersion\":1,\"label\":\"STATUS\",\"message\":\"${{ steps.rt.outputs.STATUS }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"yellow\"}" > badges/status.json
           echo "{\"schemaVersion\":1,\"label\":\"Стенд\",\"message\":\"${{ steps.stand.outputs.STAND }}\",\"color\":\"green\",\"labelColor\":\"red\"}" > badges/stand_status.json
           echo "{\"schemaVersion\":1,\"label\":\"Возраст\",\"message\":\"${{ steps.age.outputs.AGE_FLOAT }}\",\"color\":\"blue\",\"labelColor\":\"red\"}" > badges/age.json
 
