@@ -24,13 +24,17 @@ root@epid-lab:~# whoami<br>
 ```
 ```sh
 root@epid-lab:~# ls projects/<br>
-petra_scandali rogue-go filegate tb-disinfection-demo
+petra_scandali rogue-go filegate petrushka-system-analysis tb-disinfection-demo
 ```
 ```sh
 root@epid-lab:~# cat projects/tb-disinfection-demo/status.log<br>
 [DEPLOYED] АИС «Дезинфекция» — автоматизация учёта заявок на заключительную дезинфекцию.<br>
 [RESOLVED] Разработана BPMN-модель AS-IS/TO-BE и ER-диаграмма.<br>
 [COST_SAVED] Время доставки заявки до дезинфектора: с 24 часов до ≤ 5 секунд. Время формирования отчётности: с нескольких часов до ≤ 5 секунд. Потери заявок: исключены полностью (100% учёт)
+```
+```sh
+root@epid-lab:~# cat projects/petrushka-system-analysis/status.log<br>
+[PASS] Тестовое задание: Junior Системный аналитик (анализ требований, REST API, архитектура push)
 ```
 ```sh
 root@epid-lab:~# cat projects/filegate/status.log<br>
