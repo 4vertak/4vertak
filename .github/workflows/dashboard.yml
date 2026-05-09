@@ -144,9 +144,9 @@ jobs:
           sed -i -E 's/`[^`]*`<!-- mission \(dynamic\) -->/`'"${{ steps.rt.outputs.MISSION }}"'`<!-- mission (dynamic) -->/g' README.md
 
           # Генерация JSON в папке badges
-          echo "{\"schemaVersion\":1,\"label\":\"Миссия\",\"message\":\"${{ steps.rt.outputs.MISSION }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"${{ steps.rt.outputs.RT_COLOR }}\"}" > badges/mission.json
-          echo "{\"schemaVersion\":1,\"label\":\"Rt (активность)\",\"message\":\"${{ steps.rt.outputs.RT }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"${{ steps.rt.outputs.RT_COLOR }}\"}" > badges/rt.json
-          echo "{\"schemaVersion\":1,\"label\":\"STATUS\",\"message\":\"${{ steps.rt.outputs.STATUS }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"${{ steps.rt.outputs.RT_COLOR }}\"}" > badges/status.json
+          echo "{\"schemaVersion\":1,\"label\":\"Миссия\",\"message\":\"${{ steps.rt.outputs.MISSION }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"labelColor\":\"red\"}" > badges/mission.json
+          echo "{\"schemaVersion\":1,\"label\":\"Rt (активность)\",\"message\":\"${{ steps.rt.outputs.RT }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"labelColor\":\"red\"}" > badges/rt.json
+          echo "{\"schemaVersion\":1,\"label\":\"STATUS\",\"message\":\"${{ steps.rt.outputs.STATUS }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"red\"}" > badges/status.json
           echo "{\"schemaVersion\":1,\"label\":\"Стенд\",\"message\":\"${{ steps.stand.outputs.STAND }}\",\"color\":\"green\",\"labelColor\":\"green\"}" > badges/stand_status.json
           echo "{\"schemaVersion\":1,\"label\":\"Возраст\",\"message\":\"${{ steps.age.outputs.AGE_FLOAT }}\",\"color\":\"blue\",\"labelColor\":\"blue\"}" > badges/age.json          
 
