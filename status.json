@@ -1,6 +1,1 @@
-{
-  "schemaVersion": 1,
-  "label": "STATUS",
-  "message": "Анализирую эпидданные",
-  "color": "orange"
-}
+{"schemaVersion":1,"label":"STATUS","message":"Разрабатываю мероприятия","color":"blue"}
