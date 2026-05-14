@@ -49,8 +49,13 @@ root@epid-lab:~# cat projects/petra_scandali/status.log
 [COMPLETED] Учебные проекты на C и C++ за время обучения в Школе 21. 340 коммитов.
 ```
 ```sh
-root@epid-lab:~# grep "domain" skills.json
-["эпидемиология и инфекционный контроль", "ретроспективный и оперативный анализ (РЭА)", "системный анализ (BPMN, UML, ER, требования, API)", "разработка (Go, Python, SQL, C/C++)"]
+root@epid-lab:~# grep -E "domain|skills" /etc/profile.json
+  "domain": "эпидемиология и инфекционный контроль",
+  "skills": [
+    "ретроспективный и оперативный анализ (РЭА)",
+    "системный анализ (BPMN, UML, ER, требования, API)",
+    "разработка (Go, Python, SQL, C/C++)"
+  ]
 ```
 ---
 
