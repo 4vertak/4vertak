@@ -55,7 +55,7 @@ root@epid-lab:~# grep "domain" skills.json<br>
 ---
 
 ![Миссия](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/4vertak/4vertak/main/badges/mission.json)
-![Rt](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/4vertak/4vertak/main/badges/rt.json)
+![Эпид.индекс Rt](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/4vertak/4vertak/main/badges/rt.json)
 ![Статус](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/4vertak/4vertak/main/badges/status.json)
 
 

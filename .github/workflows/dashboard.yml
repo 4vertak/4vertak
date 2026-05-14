@@ -92,7 +92,7 @@ jobs:
 
           if [ "$recent" -eq 0 ] && [ "$previous" -eq 0 ]; then
             rt=0.0
-            rt_color="lightgrey"
+            rt_color="666666"                           # тусклый серый – нет данных
             status_msg="Нет данных"
             mission="ПОИСК ДАННЫХ"
           else
@@ -104,23 +104,23 @@ jobs:
 
             if (( $(echo "$rt >= 1.5" | bc -l) )); then
               status_msg="Собираю эпидданные"
-              rt_color="orange"
+              rt_color="00FF00"                          # яркий зелёный – максимальная активность
               mission="ЛИКВИДАЦИЯ ЭПИДЕМИИ"
             elif (( $(echo "$rt >= 1.1" | bc -l) )); then
               status_msg="Разрабатываю мероприятия"
-              rt_color="yellow"
+              rt_color="33CC33"                          # зелёный, чуть менее яркий
               mission="ЛИКВИДАЦИЯ ЭПИДЕМИИ"
             elif (( $(echo "$rt >= 0.9" | bc -l) )); then
               status_msg="Ликвидирую очаг"
-              rt_color="green"
+              rt_color="4C9900"                          # приглушённый зелёный
               mission="ЛИКВИДАЦИЯ ЭПИДЕМИИ"
             elif (( $(echo "$rt >= 0.2" | bc -l) )); then
               status_msg="Провожу РЭА"
-              rt_color="brightgreen"
+              rt_color="556B2F"                         # тёмный оливковый
               mission="МОНИТОРИНГ"
             else
               status_msg="Мониторю данные"
-              rt_color="blue"
+              rt_color="5A5A5A"                         # серый
               mission="ПРОФИЛАКТИКА"
             fi
           fi
@@ -144,11 +144,11 @@ jobs:
           sed -i -E 's/`[^`]*`<!-- mission \(dynamic\) -->/`'"${{ steps.rt.outputs.MISSION }}"'`<!-- mission (dynamic) -->/g' README.md
 
           # Генерация JSON в папке badges
-          echo "{\"schemaVersion\":1,\"label\":\"Миссия\",\"message\":\"${{ steps.rt.outputs.MISSION }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"red\"}" > badges/mission.json
-          echo "{\"schemaVersion\":1,\"label\":\"Rt (активность)\",\"message\":\"${{ steps.rt.outputs.RT }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"green\"}" > badges/rt.json
-          echo "{\"schemaVersion\":1,\"label\":\"STATUS\",\"message\":\"${{ steps.rt.outputs.STATUS }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"yellow\"}" > badges/status.json
-          echo "{\"schemaVersion\":1,\"label\":\"Стенд\",\"message\":\"${{ steps.stand.outputs.STAND }}\",\"color\":\"green\",\"labelColor\":\"red\"}" > badges/stand_status.json
-          echo "{\"schemaVersion\":1,\"label\":\"Возраст\",\"message\":\"${{ steps.age.outputs.AGE_FLOAT }}\",\"color\":\"blue\",\"labelColor\":\"red\"}" > badges/age.json
+          echo "{\"schemaVersion\":1,\"label\":\"Миссия\",\"message\":\"${{ steps.rt.outputs.MISSION }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"1A1A1A\"}" > badges/mission.json
+          echo "{\"schemaVersion\":1,\"label\":\"Эпид.индекс Rt\",\"message\":\"${{ steps.rt.outputs.RT }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"1A1A1A\"}" > badges/rt.json
+          echo "{\"schemaVersion\":1,\"label\":\"STATUS\",\"message\":\"${{ steps.rt.outputs.STATUS }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"1A1A1A\"}" > badges/status.json
+          echo "{\"schemaVersion\":1,\"label\":\"Стенд\",\"message\":\"${{ steps.stand.outputs.STAND }}\",\"color\":\"green\",\"labelColor\":\"1A1A1A\"}" > badges/stand_status.json
+          echo "{\"schemaVersion\":1,\"label\":\"Возраст\",\"message\":\"${{ steps.age.outputs.AGE_FLOAT }}\",\"color\":\"blue\",\"labelColor\":\"1A1A1A\"}" > badges/age.json
 
       - name: Закоммитить изменения
         run: |
