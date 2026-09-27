@@ -15,7 +15,7 @@ root@epid-lab:~# cat /etc/motd
 
 > Версия ядра: **42.3<!-- age_years (dynamic) -->** (23 года в эпидемиологии)<br>
 > Локация: `Якутск`<br>
-> Статус стенда: `РАБОТАЕТ`<!-- stand_status (dynamic) --> | Текущая миссия: `ПРОФИЛАКТИКА`<!-- mission (dynamic) -->
+> Статус стенда: `РАБОТАЕТ`<!-- stand_status (dynamic) --> | Текущая миссия: `ЛИКВИДАЦИЯ ЭПИДЕМИИ`<!-- mission (dynamic) -->
 
 ```sh
 root@epid-lab:~# whoami
