@@ -2,7 +2,7 @@
   <img src="./banner.gif" width="100%" alt="Загрузка системы"/>
 </p>
 
-```text
+```console
 root@epid-lab:~# cat /etc/motd
 
 ██╗ ██╗██╗ ██╗███████╗██████╗ ████████╗ █████╗ ██╗  ██╗
