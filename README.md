@@ -15,7 +15,7 @@ root@epid-lab:~# cat /etc/motd
 ```
 
 > Статус стенда: `РАБОТАЕТ`<!-- stand_status (dynamic) -->  
-> Текущая миссия: `ЛИКВИДАЦИЯ ЭПИДЕМИИ`<!-- mission (dynamic) -->
+> Текущая миссия: `МОНИТОРИНГ`<!-- mission (dynamic) -->
 
 ```console
 root@epid-lab:~# whoami
