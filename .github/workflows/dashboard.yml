@@ -1,4 +1,4 @@
-name: Обновление терминала и дашборда (возраст, стенд, Rt, миссия)
+name: Обновление терминала и дашборда (стенд, Rt, миссия)
 
 on:
   schedule:
@@ -14,19 +14,8 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       USERNAME: ${{ github.repository_owner }}
-      BIRTH_DATE: ${{ secrets.BIRTH_DATE }}
-      EXP_START_DATE: ${{ secrets.EXP_START_DATE }}   # не используется, но пусть будет
     steps:
       - uses: actions/checkout@v4
-
-      - name: Вычислить возраст
-        id: age
-        run: |
-          birth_epoch=$(date -d "$BIRTH_DATE" +%s)
-          now_epoch=$(date +%s)
-          age_days=$(( (now_epoch - birth_epoch) / (24*3600) ))
-          age_years_float=$(echo "scale=1; $age_days / 365.25" | bc)
-          echo "AGE_FLOAT=$age_years_float" >> $GITHUB_OUTPUT
 
       - name: Вычислить статус стенда
         id: stand
@@ -64,7 +53,7 @@ jobs:
           else
             stand_status="ПРОСТОЙ"
           fi
-          echo "STAND=$stand_status" >> $GITHUB_OUTPUT
+          echo "STAND=$stand_status" >> "$GITHUB_OUTPUT"
 
       - name: Вычислить Rt, статус и миссию
         id: rt
@@ -72,9 +61,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           owner="$USERNAME"
-          today=$(date -u +%Y-%m-%d)
-          week_ago=$(date -u -d '7 days ago' +%Y-%m-%d)
-          two_weeks_ago=$(date -u -d '14 days ago' +%Y-%m-%d)
+          # Два непересекающихся окна по 7 суток, в UTC.
+          now_epoch=$(date -u +%s)
+          now=$(date -u -d "@$now_epoch" +%Y-%m-%dT%H:%M:%SZ)
+          week_ago=$(date -u -d "@$((now_epoch - 7*86400))" +%Y-%m-%dT%H:%M:%SZ)
+          previous_end=$(date -u -d "@$((now_epoch - 7*86400 - 1))" +%Y-%m-%dT%H:%M:%SZ)
+          two_weeks_ago=$(date -u -d "@$((now_epoch - 14*86400))" +%Y-%m-%dT%H:%M:%SZ)
 
           query='query($owner:String!, $from:DateTime!, $to:DateTime!) {
             user(login:$owner) {
@@ -83,59 +75,58 @@ jobs:
               }
             }
           }'
-          recent=$(gh api graphql -f query="$query" -f owner="$owner" -f from="${week_ago}T00:00:00Z" -f to="${today}T23:59:59Z" | jq '.data.user.contributionsCollection.totalCommitContributions')
-          previous=$(gh api graphql -f query="$query" -f owner="$owner" -f from="${two_weeks_ago}T00:00:00Z" -f to="${week_ago}T23:59:59Z" | jq '.data.user.contributionsCollection.totalCommitContributions')
+          recent=$(gh api graphql -f query="$query" -f owner="$owner" -f from="$week_ago" -f to="$now" | jq '.data.user.contributionsCollection.totalCommitContributions')
+          previous=$(gh api graphql -f query="$query" -f owner="$owner" -f from="$two_weeks_ago" -f to="$previous_end" | jq '.data.user.contributionsCollection.totalCommitContributions')
 
-          # Логирование
           echo "Recent commits (last 7d): $recent"
           echo "Previous commits (7-14d ago): $previous"
 
+          # Игровой индекс активности GitHub, а не эпидемиологическое Rt:
+          # коммиты за последние 7 суток / коммиты за предыдущие 7 суток.
           if [ "$recent" -eq 0 ] && [ "$previous" -eq 0 ]; then
-            rt=0.0
-            rt_color="666666"                           # тусклый серый – нет данных
+            rt="—"
+            rt_color="666666"
             status_msg="Нет данных"
             mission="ПОИСК ДАННЫХ"
+          elif [ "$previous" -eq 0 ]; then
+            # При нулевом знаменателе числовое отношение не определено.
+            rt="новая"
+            rt_color="33CC33"
+            status_msg="Новая активность"
+            mission="ЛИКВИДАЦИЯ ЭПИДЕМИИ"
           else
-            if [ "$previous" -eq 0 ] && [ "$recent" -gt 0 ]; then
-              rt=0.1
-            else
-              rt=$(echo "scale=2; $previous / ($recent + 0.01)" | bc)
-            fi
-
+            rt=$(echo "scale=2; $recent / $previous" | bc)
             if (( $(echo "$rt >= 1.5" | bc -l) )); then
               status_msg="Собираю эпидданные"
-              rt_color="00FF00"                          # яркий зелёный – максимальная активность
+              rt_color="00FF00"
               mission="ЛИКВИДАЦИЯ ЭПИДЕМИИ"
             elif (( $(echo "$rt >= 1.1" | bc -l) )); then
               status_msg="Разрабатываю мероприятия"
-              rt_color="33CC33"                          # зелёный, чуть менее яркий
+              rt_color="33CC33"
               mission="ЛИКВИДАЦИЯ ЭПИДЕМИИ"
             elif (( $(echo "$rt >= 0.9" | bc -l) )); then
               status_msg="Ликвидирую очаг"
-              rt_color="4C9900"                          # приглушённый зелёный
+              rt_color="4C9900"
               mission="ЛИКВИДАЦИЯ ЭПИДЕМИИ"
             elif (( $(echo "$rt >= 0.2" | bc -l) )); then
               status_msg="Провожу РЭА"
-              rt_color="556B2F"                         # тёмный оливковый
+              rt_color="556B2F"
               mission="МОНИТОРИНГ"
             else
               status_msg="Мониторю данные"
-              rt_color="5A5A5A"                         # серый
+              rt_color="5A5A5A"
               mission="ПРОФИЛАКТИКА"
             fi
           fi
 
-          echo "RT=$rt" >> $GITHUB_OUTPUT
-          echo "RT_COLOR=$rt_color" >> $GITHUB_OUTPUT
-          echo "STATUS=$status_msg" >> $GITHUB_OUTPUT
-          echo "MISSION=$mission" >> $GITHUB_OUTPUT
+          echo "RT=$rt" >> "$GITHUB_OUTPUT"
+          echo "RT_COLOR=$rt_color" >> "$GITHUB_OUTPUT"
+          echo "STATUS=$status_msg" >> "$GITHUB_OUTPUT"
+          echo "MISSION=$mission" >> "$GITHUB_OUTPUT"
 
       - name: Обновить README.md и сгенерировать файлы бейджей
         run: |
           mkdir -p badges
-
-          # Возраст: число + плейсхолдер
-          sed -i -E 's/[0-9]+(\.[0-9]+)?<!-- age_years \(dynamic\) -->/'"${{ steps.age.outputs.AGE_FLOAT }}"'<!-- age_years (dynamic) -->/g' README.md
 
           # Статус стенда: текст в обратных кавычках + плейсхолдер
           sed -i -E 's/`[^`]*`<!-- stand_status \(dynamic\) -->/`'"${{ steps.stand.outputs.STAND }}"'`<!-- stand_status (dynamic) -->/g' README.md
@@ -148,12 +139,11 @@ jobs:
           echo "{\"schemaVersion\":1,\"label\":\"Эпид.индекс Rt\",\"message\":\"${{ steps.rt.outputs.RT }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"1A1A1A\"}" > badges/rt.json
           echo "{\"schemaVersion\":1,\"label\":\"STATUS\",\"message\":\"${{ steps.rt.outputs.STATUS }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"1A1A1A\"}" > badges/status.json
           echo "{\"schemaVersion\":1,\"label\":\"Стенд\",\"message\":\"${{ steps.stand.outputs.STAND }}\",\"color\":\"green\",\"labelColor\":\"1A1A1A\"}" > badges/stand_status.json
-          echo "{\"schemaVersion\":1,\"label\":\"Возраст\",\"message\":\"${{ steps.age.outputs.AGE_FLOAT }}\",\"color\":\"blue\",\"labelColor\":\"1A1A1A\"}" > badges/age.json
 
       - name: Закоммитить изменения
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add README.md badges/
-          git diff --staged --quiet || git commit -m "docs: обновить терминал и бейджи (возраст, стенд, Rt, миссия)"
+          git diff --staged --quiet || git commit -m "docs: обновить терминал и бейджи (стенд, Rt, миссия)"
           git push
