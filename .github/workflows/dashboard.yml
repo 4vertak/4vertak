@@ -96,6 +96,7 @@ jobs:
             mission="ЛИКВИДАЦИЯ ЭПИДЕМИИ"
           else
             rt=$(echo "scale=2; $recent / $previous" | bc)
+            rt=$(printf '%.2f' "$rt")
             if (( $(echo "$rt >= 1.5" | bc -l) )); then
               status_msg="Собираю эпидданные"
               rt_color="00FF00"
