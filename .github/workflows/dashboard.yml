@@ -1,8 +1,8 @@
-name: Обновление терминала и дашборда (стенд, Rt, миссия)
+name: Обновление терминала и дашборда (стенд, GitHub Rt, тренд)
 
 on:
   schedule:
-    - cron: '0 8 * * *'   # каждый день в 8:00 UTC
+    - cron: '0 8 * * *' # ежедневно в 08:00 UTC
   workflow_dispatch:
 
 permissions:
@@ -12,15 +12,25 @@ jobs:
   update-terminal:
     runs-on: ubuntu-latest
     env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       USERNAME: ${{ github.repository_owner }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
+      - name: Прочитать выбранную миссию
+        id: mission
+        shell: bash
+        run: |
+          mission=$(tr -d '\r\n' < .github/mission.txt)
+          case "$mission" in
+            ИССЛЕДОВАНИЕ|РАЗРАБОТКА|ЭКСПЕРИМЕНТ|МОДЕЛИРОВАНИЕ|РЕФАКТОРИНГ) ;;
+            *) echo "Недопустимая миссия: $mission" >&2; exit 1 ;;
+          esac
+          echo "MISSION=$mission" >> "$GITHUB_OUTPUT"
+
       - name: Вычислить статус стенда
         id: stand
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
           owner="$USERNAME"
           query_repos='query($owner:String!) {
@@ -31,10 +41,11 @@ jobs:
             }
           }'
           new_repos=$(gh api graphql -f query="$query_repos" -f owner="$owner" | \
-            jq '[.data.user.repositories.nodes[] | select(.createdAt > (now - 2592000 | strftime("%Y-%m-%dT%H:%M:%SZ")))] | length')
+            jq -er '[.data.user.repositories.nodes[] | select(.createdAt > (now - 2592000 | strftime("%Y-%m-%dT%H:%M:%SZ")))] | length')
 
-          today=$(date -u +%Y-%m-%d)
-          month_ago=$(date -u -d '30 days ago' +%Y-%m-%d)
+          now_epoch=$(date -u +%s)
+          month_ago=$(date -u -d "@$((now_epoch - 30*86400))" +%Y-%m-%dT%H:%M:%SZ)
+          now=$(date -u -d "@$now_epoch" +%Y-%m-%dT%H:%M:%SZ)
           query_commits='query($owner:String!, $from:DateTime!, $to:DateTime!) {
             user(login:$owner) {
               contributionsCollection(from:$from, to:$to) {
@@ -43,25 +54,28 @@ jobs:
             }
           }'
           commits=$(gh api graphql -f query="$query_commits" -f owner="$owner" \
-            -f from="${month_ago}T00:00:00Z" -f to="${today}T23:59:59Z" | \
-            jq '.data.user.contributionsCollection.totalCommitContributions')
+            -f from="$month_ago" -f to="$now" | \
+            jq -er '.data.user.contributionsCollection.totalCommitContributions | numbers')
 
           if [ "$new_repos" -gt 0 ]; then
             stand_status="АКТИВЕН"
+            stand_color="238636"
           elif [ "$commits" -gt 0 ]; then
             stand_status="РАБОТАЕТ"
+            stand_color="1F6FEB"
           else
             stand_status="ПРОСТОЙ"
+            stand_color="6E7681"
           fi
           echo "STAND=$stand_status" >> "$GITHUB_OUTPUT"
+          echo "STAND_COLOR=$stand_color" >> "$GITHUB_OUTPUT"
 
-      - name: Вычислить Rt, статус и миссию
+      - name: Вычислить GitHub Rt и тренд
         id: rt
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
           owner="$USERNAME"
-          # Два непересекающихся окна по 7 суток, в UTC.
+          # Два непересекающихся 7-дневных периода в UTC.
           now_epoch=$(date -u +%s)
           now=$(date -u -d "@$now_epoch" +%Y-%m-%dT%H:%M:%SZ)
           week_ago=$(date -u -d "@$((now_epoch - 7*86400))" +%Y-%m-%dT%H:%M:%SZ)
@@ -75,76 +89,101 @@ jobs:
               }
             }
           }'
-          recent=$(gh api graphql -f query="$query" -f owner="$owner" -f from="$week_ago" -f to="$now" | jq '.data.user.contributionsCollection.totalCommitContributions')
-          previous=$(gh api graphql -f query="$query" -f owner="$owner" -f from="$two_weeks_ago" -f to="$previous_end" | jq '.data.user.contributionsCollection.totalCommitContributions')
+          recent=$(gh api graphql -f query="$query" -f owner="$owner" \
+            -f from="$week_ago" -f to="$now" | \
+            jq -er '.data.user.contributionsCollection.totalCommitContributions | numbers')
+          previous=$(gh api graphql -f query="$query" -f owner="$owner" \
+            -f from="$two_weeks_ago" -f to="$previous_end" | \
+            jq -er '.data.user.contributionsCollection.totalCommitContributions | numbers')
 
-          echo "Recent commits (last 7d): $recent"
-          echo "Previous commits (7-14d ago): $previous"
+          echo "Последние 7 суток: $recent коммитов"
+          echo "Предыдущие 7 суток: $previous коммитов"
 
-          # Игровой индекс активности GitHub, а не эпидемиологическое Rt:
-          # коммиты за последние 7 суток / коммиты за предыдущие 7 суток.
+          # Условный индекс изменения GitHub-активности, НЕ эпидемиологический Rt.
           if [ "$recent" -eq 0 ] && [ "$previous" -eq 0 ]; then
             rt="—"
-            rt_color="666666"
-            status_msg="Нет данных"
-            mission="ПОИСК ДАННЫХ"
+            trend="НЕТ ДАННЫХ"
+            trend_color="6E7681"
           elif [ "$previous" -eq 0 ]; then
-            # При нулевом знаменателе числовое отношение не определено.
-            rt="новая"
-            rt_color="33CC33"
-            status_msg="Новая активность"
-            mission="ЛИКВИДАЦИЯ ЭПИДЕМИИ"
+            rt="NEW"
+            trend="НОВАЯ"
+            trend_color="238636"
           else
-            rt=$(echo "scale=2; $recent / $previous" | bc)
-            rt=$(printf '%.2f' "$rt")
-            if (( $(echo "$rt >= 1.5" | bc -l) )); then
-              status_msg="Собираю эпидданные"
-              rt_color="00FF00"
-              mission="ЛИКВИДАЦИЯ ЭПИДЕМИИ"
-            elif (( $(echo "$rt >= 1.1" | bc -l) )); then
-              status_msg="Разрабатываю мероприятия"
-              rt_color="33CC33"
-              mission="ЛИКВИДАЦИЯ ЭПИДЕМИИ"
-            elif (( $(echo "$rt >= 0.9" | bc -l) )); then
-              status_msg="Ликвидирую очаг"
-              rt_color="4C9900"
-              mission="ЛИКВИДАЦИЯ ЭПИДЕМИИ"
-            elif (( $(echo "$rt >= 0.2" | bc -l) )); then
-              status_msg="Провожу РЭА"
-              rt_color="556B2F"
-              mission="МОНИТОРИНГ"
+            rt=$(awk -v recent="$recent" -v previous="$previous" \
+              'BEGIN { printf "%.2f", recent / previous }')
+            if [ "$recent" -gt "$previous" ]; then
+              trend="РОСТ"
+              trend_color="238636"
+            elif [ "$recent" -eq "$previous" ]; then
+              trend="СТАБИЛЬНО"
+              trend_color="1F6FEB"
             else
-              status_msg="Мониторю данные"
-              rt_color="5A5A5A"
-              mission="ПРОФИЛАКТИКА"
+              trend="СПАД"
+              trend_color="9A6700"
             fi
           fi
 
           echo "RT=$rt" >> "$GITHUB_OUTPUT"
-          echo "RT_COLOR=$rt_color" >> "$GITHUB_OUTPUT"
-          echo "STATUS=$status_msg" >> "$GITHUB_OUTPUT"
-          echo "MISSION=$mission" >> "$GITHUB_OUTPUT"
+          echo "TREND=$trend" >> "$GITHUB_OUTPUT"
+          echo "TREND_COLOR=$trend_color" >> "$GITHUB_OUTPUT"
 
-      - name: Обновить README.md и сгенерировать файлы бейджей
+      - name: Обновить терминал и индикаторы
+        shell: bash
+        env:
+          STAND: ${{ steps.stand.outputs.STAND }}
+          STAND_COLOR: ${{ steps.stand.outputs.STAND_COLOR }}
+          MISSION: ${{ steps.mission.outputs.MISSION }}
+          RT: ${{ steps.rt.outputs.RT }}
+          TREND: ${{ steps.rt.outputs.TREND }}
+          TREND_COLOR: ${{ steps.rt.outputs.TREND_COLOR }}
         run: |
-          mkdir -p badges
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          from pathlib import Path
 
-          # Статус стенда: текст в обратных кавычках + плейсхолдер
-          sed -i -E 's/`[^`]*`<!-- stand_status \(dynamic\) -->/`'"${{ steps.stand.outputs.STAND }}"'`<!-- stand_status (dynamic) -->/g' README.md
+          readme = Path('README.md')
+          content = readme.read_text(encoding='utf-8')
 
-          # Миссия: текст в обратных кавычках + плейсхолдер
-          sed -i -E 's/`[^`]*`<!-- mission \(dynamic\) -->/`'"${{ steps.rt.outputs.MISSION }}"'`<!-- mission (dynamic) -->/g' README.md
+          for marker, value in [('stand_status', os.environ['STAND']),
+                                ('mission', os.environ['MISSION'])]:
+              pattern = rf'`[^`]*`<!-- {marker} \(dynamic\) -->'
+              replacement = f'`{value}`<!-- {marker} (dynamic) -->'
+              content, n = re.subn(pattern, lambda _: replacement, content)
+              if n != 1:
+                  raise RuntimeError(f'Ожидался один маркер {marker}, найдено: {n}')
+          if content != readme.read_text(encoding='utf-8'):
+              readme.write_text(content, encoding='utf-8')
 
-          # Генерация JSON в папке badges
-          echo "{\"schemaVersion\":1,\"label\":\"Миссия\",\"message\":\"${{ steps.rt.outputs.MISSION }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"1A1A1A\"}" > badges/mission.json
-          echo "{\"schemaVersion\":1,\"label\":\"Эпид.индекс Rt\",\"message\":\"${{ steps.rt.outputs.RT }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"1A1A1A\"}" > badges/rt.json
-          echo "{\"schemaVersion\":1,\"label\":\"STATUS\",\"message\":\"${{ steps.rt.outputs.STATUS }}\",\"color\":\"${{ steps.rt.outputs.RT_COLOR }}\",\"labelColor\":\"1A1A1A\"}" > badges/status.json
-          echo "{\"schemaVersion\":1,\"label\":\"Стенд\",\"message\":\"${{ steps.stand.outputs.STAND }}\",\"color\":\"green\",\"labelColor\":\"1A1A1A\"}" > badges/stand_status.json
+          badges = Path('badges')
+          badges.mkdir(exist_ok=True)
+          def write_badge(name, label, value, color):
+              data = {
+                  'schemaVersion': 1,
+                  'label': label,
+                  'message': value,
+                  'color': color,
+                  'labelColor': '30363D',
+              }
+              (badges / name).write_text(
+                  json.dumps(data, ensure_ascii=False, separators=(',', ':')) + '\n',
+                  encoding='utf-8',
+              )
 
-      - name: Закоммитить изменения
+          write_badge('mission.json', 'Миссия', os.environ['MISSION'], '1F6FEB')
+          write_badge('rt.json', 'GitHub Rt', os.environ['RT'], os.environ['TREND_COLOR'])
+          write_badge('trend.json', 'Тренд', os.environ['TREND'], os.environ['TREND_COLOR'])
+          write_badge('stand_status.json', 'Стенд', os.environ['STAND'], os.environ['STAND_COLOR'])
+          PY
+
+      - name: Закоммитить обновлённые показатели
+        shell: bash
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add README.md badges/
-          git diff --staged --quiet || git commit -m "docs: обновить терминал и бейджи (стенд, Rt, миссия)"
-          git push
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: обновить показатели лаборатории (стенд, Rt, тренд)"
+            git push
+          fi

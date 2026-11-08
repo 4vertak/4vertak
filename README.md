@@ -11,11 +11,11 @@ root@epid-lab:~# cat /etc/motd
 ██████║██║ ██║█████╗  ██████╔╝   ██║   ███████║█████╔╝
 ╚═══██║██║ ██║██╔══╝  ██╔══██╗   ██║   ██╔══██║██╔═██╗
     ██║╚████╔╝███████╗██║  ██║   ██║   ██║  ██║██║  ██╗
-    ╚═╝ ╚═══╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝
+    ╚═╝ ╚═══╝ ╚══════╝╚═╝  ╚═╝   ╚═╝  ╚═╝  ╚═╝╚═╝  ╚═╝
 ```
 
 > Статус стенда: `РАБОТАЕТ`<!-- stand_status (dynamic) -->  
-> Текущая миссия: `МОНИТОРИНГ`<!-- mission (dynamic) -->
+> Текущая миссия: `ИССЛЕДОВАНИЕ`<!-- mission (dynamic) -->
 
 ```console
 root@epid-lab:~# whoami
@@ -32,5 +32,5 @@ root@epid-lab:~# cat /etc/profile.json
 ```
 
 ![Миссия](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/4vertak/4vertak/main/badges/mission.json)
-![Эпид.индекс Rt](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/4vertak/4vertak/main/badges/rt.json)
-![Статус](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/4vertak/4vertak/main/badges/status.json)
+![GitHub Rt](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/4vertak/4vertak/main/badges/rt.json)
+![Тренд](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/4vertak/4vertak/main/badges/trend.json)
